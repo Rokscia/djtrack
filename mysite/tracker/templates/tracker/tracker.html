@@ -1,0 +1,55 @@
+{% extends 'base.html' %} {% block content%}
+
+<h3>Trip data</h3>
+{% comment %}
+<p>{{location}}: {{address}}</p>
+{% endcomment %} {% comment %} leaflet map {% endcomment %} {% comment %}
+<p>Last trip route</p>
+{% endcomment %}
+
+<div class="row">
+  <div class="col-md-8">
+    <p>{{coordinates|last}} - {{coordinates|first}}</p>
+    <div id="map" style="width: 100%; height: 600px"></div>
+  </br>
+    <div>
+      <a href="{{ prev_trip_url }}" type="button" class="btn btn-primary">Previous trip</a>
+      <a href="{{ next_trip_url }}" type="button" class="btn btn-primary">Next trip</a>
+    </div>
+
+    <script>
+      {% include 'tracker/includes/map_markers.html' %}
+
+      var map = L.map('map');
+      var latlngs = {{coordinates}};
+      var polyline = L.polyline(latlngs, {color: 'blue', weight: 5}).addTo(map);
+      var marker_start = L.marker({{coordinates|last}}, {icon: greenIcon}).addTo(map);
+      var marker_finish = L.marker({{coordinates|first}}, {icon: redIcon}).addTo(map);
+
+      // zoom the map to the polyline
+      map.fitBounds(polyline.getBounds());
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    </script>
+  </div>
+  <div class="col-md-4">
+    <h5>Trip details</h5>
+    <p>Start address:</p>
+    <p>End address:</p>
+    <p>Start time:</p>
+    <p>End time:</p>
+    <p>Duration:</p>
+    <p>Distance: km</p>
+    <p>Top speed: km/h</p>
+  </div>
+  {% comment %}
+  <ul>
+    {% for row in latest_location_list %}
+    <li><a href="#">{{row.date_time}} {{row.ble_temperature_1}}</a></li>
+    {% endfor %}
+  </ul>
+  {% endcomment %} {% comment %}
+  <p>{{coordinates}}</p>
+  {% endcomment %}
+</div>
+{% endblock %}

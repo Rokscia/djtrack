@@ -1,0 +1,14 @@
+{% extends 'base.html' %} {% block content %}
+<h1>Edit Score</h1>
+
+<form method="post">
+  {% csrf_token %} {{ select_form.as_p }}
+  <button type="submit" name="select_game">Select Game</button>
+</form>
+
+{% if form %}
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Save</button>
+</form>
+{% endif %} {% endblock %}

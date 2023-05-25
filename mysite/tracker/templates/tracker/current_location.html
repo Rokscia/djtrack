@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content%}
+
+<h3>Latest car's location:</h3>
+<p>{{location}}: {{address}}</p>
+
+{% comment %} leaflet map {% endcomment %}
+<p>Location on map</p>
+<div id="map" style="width: 800px; height: 600px"></div>
+
+<script>
+  var map = L.map('map').setView([{{location.0}}, {{location.1}}], 13);
+  var marker = L.marker([{{location.0}}, {{location.1}}]).addTo(map);
+  marker.bindPopup("<b>Location address:</b><br>{{address}}").openPopup();
+  {% comment %} var latlngs = {{coordinates}};
+  var polyline = L.polyline(latlngs, {color: 'red', weight: 5}).addTo(map); {% endcomment %}
+
+  // zoom the map to the polyline
+  {% comment %} map.fitBounds(marker.getBounds()); {% endcomment %}
+
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+</script>
+
+{% endblock %}
