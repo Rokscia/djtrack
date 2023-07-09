@@ -1,0 +1,61 @@
+{% extends 'base.html' %} {% block content %}
+
+<h3>All trips list</h3>
+
+<div class="container">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Trip ID</th>
+        <th>Start datetime</th>
+        <th>End datetime</th>
+        <th>Distance</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for trip in trip_list %}
+      <tr onclick="window.location='/?trip_number={{ trip.Trip_ID }}';" style="cursor: pointer">
+        <td>{{ trip.Trip_ID }}</td>
+        <td>{{ trip.Start_datetime }}</td>
+        <td>{{ trip.End_datetime }}</td>
+        <td>{{ trip.Distance }} km</td>
+        <td><a href="/?trip_number={{ trip.Trip_ID }}">TRIP DETAILS</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <nav aria-label="Trip Pagination">
+    <ul class="pagination justify-content-center">
+      {% if trip_list.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ trip_list.previous_page_number }}">Previous</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+      </li>
+      {% endif %} {% for page in trip_list.paginator.page_range %} {% if trip_list.number == page %}
+      <li class="page-item active" aria-current="page">
+        <a class="page-link" href="#">{{ page }} <span class="sr-only"></span></a>
+      </li>
+      {% else %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+      </li>
+      {% endif %} {% endfor %} {% if trip_list.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ trip_list.next_page_number }}">Next</a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Next</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+
+{% endblock %}

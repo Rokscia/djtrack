@@ -1,20 +1,36 @@
 {% extends 'base.html' %} {% block content%}
 
 <h3>Trip data</h3>
-{% comment %}
-<p>{{location}}: {{address}}</p>
-{% endcomment %} {% comment %} leaflet map {% endcomment %} {% comment %}
-<p>Last trip route</p>
-{% endcomment %}
 
 <div class="row">
   <div class="col-md-8">
-    <p>{{coordinates|last}} - {{coordinates|first}}</p>
+    <p>Trip id: {{ trip_number }}</p>
     <div id="map" style="width: 100%; height: 600px"></div>
-  </br>
-    <div>
-      <a href="{{ prev_trip_url }}" type="button" class="btn btn-primary">Previous trip</a>
-      <a href="{{ next_trip_url }}" type="button" class="btn btn-primary">Next trip</a>
+    <br />
+    <div class="d-flex justify-content-between">
+      <div>
+        <a href="?trip_number=1" type="button" class="btn btn-primary{% if trip_number == 1 %} disabled{% endif %}"
+          ><<</a
+        >
+        <a href="{{ prev_trip_url }}" type="button" class="btn btn-primary{% if trip_number == 1 %} disabled{% endif %}"
+          >PREVIOUS TRIP</a
+        >
+        <a
+          href="{{ next_trip_url }}"
+          type="button"
+          class="btn btn-primary{% if trip_number == last_trip_number %} disabled{% endif %}"
+          >NEXT TRIP</a
+        >
+        <a
+          href="?trip_number={{ last_trip_number }}"
+          type="button"
+          class="btn btn-primary{% if trip_number == last_trip_number %} disabled{% endif %}"
+          >>></a
+        >
+      </div>
+      <div>
+        <a href="{% url 'tracker:trip_list' %}" type="button" class="btn btn-success">VIEW ALL TRIPS LIST</a>
+      </div>
     </div>
 
     <script>
@@ -23,8 +39,10 @@
       var map = L.map('map');
       var latlngs = {{coordinates}};
       var polyline = L.polyline(latlngs, {color: 'blue', weight: 5}).addTo(map);
-      var marker_start = L.marker({{coordinates|last}}, {icon: greenIcon}).addTo(map);
-      var marker_finish = L.marker({{coordinates|first}}, {icon: redIcon}).addTo(map);
+      var marker_start = L.marker({{coordinates|first}}, {icon: greenIcon}).addTo(map);
+      marker_start.bindPopup("<b>Trip start location:</b><br>{{start_address}}").openPopup();
+      var marker_finish = L.marker({{coordinates|last}}, {icon: redIcon}).addTo(map);
+      marker_finish.bindPopup("<b>Trip end location:</b><br>{{end_address}}").openPopup();
 
       // zoom the map to the polyline
       map.fitBounds(polyline.getBounds());
@@ -34,22 +52,82 @@
   </div>
   <div class="col-md-4">
     <h5>Trip details</h5>
-    <p>Start address:</p>
-    <p>End address:</p>
-    <p>Start time:</p>
-    <p>End time:</p>
-    <p>Duration:</p>
-    <p>Distance: km</p>
-    <p>Top speed: km/h</p>
+    <table class="table">
+      <tbody>
+        <tr>
+          <th>Start address</th>
+          <td>{{ start_address }}</td>
+        </tr>
+        <tr>
+          <th>Start coordinates</th>
+          <td>{{ coordinates|last|join:", " }}</td>
+        </tr>
+        <tr>
+          <th>End address</th>
+          <td>{{ end_address }}</td>
+        </tr>
+        <tr>
+          <th>End coordinates</th>
+          <td>{{ coordinates|last|join:", " }}</td>
+        </tr>
+        <tr>
+          <th>Start time</th>
+          <td>{{ times.0 }}</td>
+        </tr>
+        <tr>
+          <th>End time</th>
+          <td>{{ times.1 }}</td>
+        </tr>
+        <tr>
+          <th>Duration</th>
+          <td>{{ times.2 }}</td>
+        </tr>
+        <tr>
+          <th>Distance</th>
+          <td>{{ distance }} km</td>
+        </tr>
+        <tr>
+          <th>Top speed</th>
+          <td>{{ top_speed }} km/h</td>
+        </tr>
+      </tbody>
+    </table>
+    <br />
+    {% comment %} Add the delete button and form {% endcomment %}
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'tracker:delete_nth_trip' %}">
+      {% csrf_token %}
+      <input type="hidden" name="trip_number" value="{{ trip_number }}" />
+      <button type="submit" class="btn btn-danger">DELETE TRIP</button>
+    </form>
+    {% else %}
+    <a href="/login" style="color: red">Log in to delete a trip</a>
+    {% endif %}
   </div>
-  {% comment %}
-  <ul>
-    {% for row in latest_location_list %}
-    <li><a href="#">{{row.date_time}} {{row.ble_temperature_1}}</a></li>
-    {% endfor %}
-  </ul>
-  {% endcomment %} {% comment %}
-  <p>{{coordinates}}</p>
-  {% endcomment %}
 </div>
+
+<!-- Add the Plotly CSS and JavaScript code -->
+<style>
+  /* Plotly CSS styles */
+  #graph_placeholder {
+    width: 100%;
+    height: 500px; /* Adjust the height as needed */
+  }
+</style>
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.2/plotly.min.js"
+  integrity="sha512-dAXqGCq94D0kgLSPnfvd/pZpCMoJQpGj2S2XQmFQ9Ay1+96kbjss02ISEh+TBNXMggGg/1qoMcOHcxg+Op/Jmw=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+</br>
+<div id="graph_placeholder">{{ speed_graph_html | safe }}</div>
+
+<div id="graph_placeholder">{{ temp_graph_html | safe }}</div>
+
+<div id="graph_placeholder">{{ coolant_temp_graph_html | safe }}</div>
+
+<div id="graph_placeholder">{{ engine_rpm_graph_html | safe }}</div>
+
 {% endblock %}

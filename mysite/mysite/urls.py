@@ -21,6 +21,5 @@ from .views import home
 urlpatterns = [
     # path('', home),
     path("", include("tracker.urls")),
-    path("zalgiris/", include("zalgiris.urls")),
     path("admin/", admin.site.urls),
 ]

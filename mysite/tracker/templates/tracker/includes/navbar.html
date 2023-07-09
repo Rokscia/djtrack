@@ -1,6 +1,6 @@
 {% block content %}
 
-<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg" style="background-color: teal" data-bs-theme="dark">
   <div class="container">
     <a class="navbar-brand" href="/">
       {% load static %} <img src="{% static "tracker/media/logo.png" %}" alt="Logo" width="48" height="48">
@@ -19,31 +19,17 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="{% url 'tracker:index' %}">Trips</a>
+          <a class="nav-link active" aria-current="page" href="{% url 'tracker:index' %}">TRIP MAP</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link active" href="{% url 'tracker:current_location' %}">Parking location</a>
-        </li>
-        {% comment %}
-        <li class="nav-item">
-          <a class="nav-link active" href="/zalgiris">ŽALGIRIS</a>
-        </li>
-        {% endcomment %} {% comment %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Dropdown
-          </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-          </ul>
+          <a class="nav-link active" href="{% url 'tracker:calendar' %}">CALENDAR</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled">Disabled</a>
+          <a class="nav-link active" href="{% url 'tracker:trip_list' %}">TRIPS LIST</a>
         </li>
-        {% endcomment %}
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'tracker:current_location' %}">LAST PARKING LOCATION</a>
+        </li>
       </ul>
 
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -53,24 +39,22 @@
           <a class="nav-link active" href="#">Welcome, {{user.username}}</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link active" href="/update_tracker_data">Update Data</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link active" href="/logout">Logout</a>
         </li>
 
         {% else %}
 
         <li class="nav-item">
-          <a class="nav-link active" href="/login">Login</a>
+          <a class="nav-link active" href="/login">Log In</a>
         </li>
         <li class="nav-item">
           <a class="nav-link active" href="/register">Register</a>
         </li>
       </ul>
-      {% endif %} {% comment %}
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
-      {% endcomment %}
+      {% endif %}
     </div>
   </div>
 </nav>

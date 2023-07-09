@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tracker.apps.TrackerConfig',
-    'zalgiris.apps.ZalgirisConfig',
     'crispy_forms',
     'crispy_bootstrap4',
 ]

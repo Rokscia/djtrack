@@ -1,0 +1,140 @@
+{% extends 'base.html' %} {% block content%}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    var start = moment().subtract(6, 'days');
+    var end = moment();
+  
+    function cb(start, end) {
+      $("#kt_daterangepicker_4").val(start.format("MM/DD/YYYY") + " - " + end.format("MM/DD/YYYY"));
+    }
+  
+    // Get the date range from the URL parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    var dateRangeParam = urlParams.get("date_range");
+    if (dateRangeParam) {
+      var [startDateStr, endDateStr] = dateRangeParam.split(" - ");
+      var startDate = moment(startDateStr, "MM/DD/YYYY");
+      var endDate = moment(endDateStr, "MM/DD/YYYY");
+      start = startDate.isValid() ? startDate : start;
+      end = endDate.isValid() ? endDate : end;
+    }
+  
+    $("#kt_daterangepicker_4").daterangepicker({
+      startDate: start,
+      endDate: end,
+      ranges: {
+        "Today": [moment(), moment()],
+        "Yesterday": [moment().subtract(1, "days"), moment().subtract(1, "days")],
+        "Last 7 Days": [moment().subtract(6, "days"), moment()],
+        "Last 30 Days": [moment().subtract(29, "days"), moment()],
+        "This Month": [moment().startOf("month"), moment().endOf("month")],
+        "Last Month": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")]
+      }
+    }, cb);
+  
+    cb(start, end);
+  });
+  
+</script>
+
+<h3>Trip data by date</h3>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <form action="{% url 'tracker:calendar' %}" method="get">
+      <label class="form-label">Select the Date Range</label>
+      <div class="input-group">
+        <input class="form-control form-control-solid" id="kt_daterangepicker_4" name="date_range" />
+      </div>
+  </div>
+  <div class="col-md-4 align-self-end">
+    <div class="input-group">
+      <button type="submit" class="btn btn-primary w-100">SHOW TRIPS DATA</button>
+    </div>
+    </form>
+  </div>
+</div>
+<br/>
+
+
+<div class="row">
+  <div class="col-md-12">
+    <div id="map" style="width: 100%; height: 600px"></div>
+  </br>
+
+    <script>
+      {% include 'tracker/includes/map_markers.html' %}
+
+      var map = L.map('map');
+      var latlngs = {{coordinates}};
+      var polyline = L.polyline(latlngs, {color: 'blue', weight: 5}).addTo(map);
+      {% comment %} var marker_start = L.marker({{coordinates|last}}, {icon: greenIcon}).addTo(map);
+      var marker_finish = L.marker({{coordinates|first}}, {icon: redIcon}).addTo(map); {% endcomment %}
+
+      // zoom the map to the polyline
+      map.fitBounds(polyline.getBounds());
+
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    </script>
+  </div>
+  {% comment %} <div class="col-md-4">
+    <h5>Trip details</h5>
+    <p><strong>Start address:</strong></br>{{start_address}}</p>
+    <p><strong>End address:</strong></br>{{end_address}}</p>
+    <p><strong>Start time:</strong></br>{{times.0}}</p>
+    <p><strong>End time:</strong></br>{{times.1}}</p>
+    <p><strong>Duration:</strong></br>{{times.2}}</p>
+    <p><strong>Distance:</strong></br>{{distance}} km</p>
+    <p><strong>Top speed:</strong></br>{{top_speed}} km/h</p>
+    <br> {% endcomment %}
+
+    {% comment %} Add the delete button and form {% endcomment %}
+    {% comment %} {% if user.is_authenticated %}
+      <form method="post" action="{% url 'tracker:delete_nth_trip' %}">
+        {% csrf_token %}
+        <input type="hidden" name="trip_number" value="{{ trip_number }}">
+        <button type="submit" class="btn btn-danger">Delete Trip</button>
+      </form>
+    {% else %}
+      <p style="color:red">Log in to delete a trip</p>
+    {% endif %}
+  </div> {% endcomment %}
+</div>
+
+<!-- Add the Plotly CSS and JavaScript code -->
+{% comment %} <style>
+  /* Plotly CSS styles */
+  #graph_placeholder {
+    width: 100%;
+    height: 500px; /* Adjust the height as needed */
+  }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.24.2/plotly.min.js" integrity="sha512-dAXqGCq94D0kgLSPnfvd/pZpCMoJQpGj2S2XQmFQ9Ay1+96kbjss02ISEh+TBNXMggGg/1qoMcOHcxg+Op/Jmw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<div id="graph_placeholder">
+  {{ speed_graph_html | safe }}
+</div>
+
+<div id="graph_placeholder">
+  {{ temp_graph_html | safe }}
+</div>
+
+<div id="graph_placeholder">
+  {{ coolant_temp_graph_html | safe }}
+</div>
+
+<div id="graph_placeholder">
+  {{ engine_rpm_graph_html | safe }}
+</div> {% endcomment %}
+
+{% endblock %}
